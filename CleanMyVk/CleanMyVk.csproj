@@ -16,4 +16,7 @@
   <ItemGroup>
     <PackageReference Include="VkNet" Version="1.53.0" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include=".user" />
+  </ItemGroup>
 </Project>

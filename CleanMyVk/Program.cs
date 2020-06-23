@@ -10,7 +10,14 @@ using static System.IO.File;
 
 static class Program
 {
-    private const string CachePath = ".cache";
+    /**
+     * Здесь закешированы две строки: логин и пароль
+     */
+    private const string CachePath = ".user";
+
+    /**
+     * Здесь хранится одна строка app id
+     */
     private const string AppIdPath = ".app";
 
     private static async Task Main(string[] args)
