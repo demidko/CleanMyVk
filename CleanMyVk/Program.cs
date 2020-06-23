@@ -2,8 +2,10 @@
 using System.Linq;
 using static System.Console;
 using System.Threading.Tasks;
+using VkNet;
+using VkNet.Model;
 using static System.Environment;
-using static System.Int32;
+using static System.UInt32;
 using static System.IO.File;
 
 static class Program
@@ -13,18 +15,24 @@ static class Program
 
     private static async Task Main(string[] args)
     {
+        var api = new VkApi();
         var (login, password) = args.LoadLoginAndPassword();
-        var appId = LoadAppId();
-        
+        api.Authorize(new ApiAuthParams
+        {
+            ApplicationId = LoadAppId(),
+            Login = login,
+            Password = password
+        });
+        Console.WriteLine(api.Token);
     }
 
-    private static int LoadAppId() =>
+    private static ulong LoadAppId() =>
         Exists(AppIdPath) &&
         ReadAllLines(AppIdPath) is var lines &&
         lines.Length == 1 &&
         TryParse(lines.First(), out var appId)
             ? appId
-            : ExitWithMessage<int>("Fatal error: .app file (contains app id only) broken or wasn't found");
+            : ExitWithMessage<ulong>("Fatal error: .app file (contains app id only) broken or wasn't found");
 
     private static (string Login, string Password) LoadLoginAndPassword(this string[] args) => args.Length switch
     {
