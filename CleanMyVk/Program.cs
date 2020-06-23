@@ -1,23 +1,37 @@
 ﻿using System;
+using System.Linq;
 using static System.Console;
 using System.Threading.Tasks;
 using static System.Environment;
+using static System.Int32;
 using static System.IO.File;
 
 static class Program
 {
     private const string CachePath = ".cache";
+    private const string AppIdPath = ".app";
 
     private static async Task Main(string[] args)
     {
         var (login, password) = args.LoadLoginAndPassword();
+        var appId = LoadAppId();
+        
     }
+
+    private static int LoadAppId() =>
+        Exists(AppIdPath) &&
+        ReadAllLines(AppIdPath) is var lines &&
+        lines.Length == 1 &&
+        TryParse(lines.First(), out var appId)
+            ? appId
+            : ExitWithMessage<int>("Fatal error: .app file (contains app id only) broken or wasn't found");
 
     private static (string Login, string Password) LoadLoginAndPassword(this string[] args) => args.Length switch
     {
         0 => LoadLoginAndPasswordFromCache(),
         2 => LoadLoginAndPasswordFrom(args),
-        _ => ExitWithMessage<(string, string)>("First usage:\ndotnet CleanMyVk [login] [password]")
+        _ => ExitWithMessage<(string, string)>(
+            "usage:\n  With login: dotnet CleanMyVk [login] [password]\n  With cache: dotnet CleanMyVk")
     };
 
     private static (string Login, string Password) LoadLoginAndPasswordFrom(string[] args)
@@ -27,7 +41,7 @@ static class Program
     }
 
     private static (string Login, string Password) LoadLoginAndPasswordFromCache() =>
-        (Exists(CachePath) && ReadAllLines(CachePath) is var lines && lines.Length == 2)
+        Exists(CachePath) && ReadAllLines(CachePath) is var lines && lines.Length == 2
             ? (lines[0], lines[1])
             : ExitWithMessage<(string, string)>(".cache file broken or wasn't found");
 
