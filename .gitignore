@@ -351,6 +351,6 @@ MigrationBackup/
 
 .idea
 
-.cache
+.app
 
 .user
