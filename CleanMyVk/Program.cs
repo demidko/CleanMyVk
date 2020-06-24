@@ -1,14 +1,27 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using static System.Console;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 using VkNet;
+using VkNet.Abstractions;
 using VkNet.Enums.Filters;
+using VkNet.Enums.SafetyEnums;
 using VkNet.Model;
 using VkNet.Model.RequestParams;
 using static System.Environment;
 using static System.UInt32;
 using static System.IO.File;
+using VkNet.AudioBypassService.Extensions;
+
+using System;
+using Microsoft.Extensions.DependencyInjection;
+using VkNet;
+using VkNet.Abstractions;
+using VkNet.AudioBypassService.Extensions;
+using VkNet.Model;
+using VkNet.Model.RequestParams;
 
 static class Program
 {
@@ -21,26 +34,19 @@ static class Program
     private static void Main(string[] args)
     {
         var api = args.LoadVkApi();
-        var filter = new NewsFeedGetCommentsParams
-        {
-            
-        };
-        api.NewsFeed.GetComments().
-        foreach (var i in api.NewsFeed.GetComments(filter).Items)
-        {
-            WriteLine($"{i.Date}({i.Type}): {i.Text}");
-        }
+        WriteLine($"Login as vk.com/{api.Account.GetProfileInfo().ScreenName}");
+        var conversationsList =
+            api.Messages.GetConversationsById(new List<long>() {186068693});
+        WriteLine(conversationsList.Count);
     }
-    
-    private static async Task<IEquatable<NewsItem>> ListAllNews(VkApi api)
-    {
-        var pageParams = new NewsFeedGetCommentsParams() { }
-        var dataArray = (await api.NewsFeed.GetCommentsAsync(pageParams)).
-    }
+
 
     private static VkApi LoadVkApi(this string[] args)
     {
-        var api = new VkApi();
+        
+        var services = new ServiceCollection();
+        services.AddAudioBypass();
+        var api = new VkApi(services);
         var (login, password) = args.LoadLoginAndPassword();
         api.Authorize(new ApiAuthParams
         {
@@ -49,7 +55,6 @@ static class Program
             Password = password,
             Settings = Settings.All
         });
-        WriteLine(api.Token);
         return api;
     }
 
