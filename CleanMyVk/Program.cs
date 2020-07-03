@@ -20,19 +20,19 @@ internal static class Program
     /// Здесь хранится одна строка app id
     private const string AppIdPath = ".app";
 
-    private static void Main(string[] args) => Login(args).CleanMyComments().CleanMyLikes();
+    private static void Main(string[] args) => LoadApi(args).ShowMessages();
 
-    private static VkApi CleanMyComments(this VkApi api)
+    private static VkApi ShowMessages(this VkApi api)
     {
+        var dialogs = api.Messages.GetConversations(new GetConversationsParams {Count = 10});
+        foreach (var conversationAndLastMessage in dialogs.Items)
+        {
+            WriteLine(conversationAndLastMessage.LastMessage);
+        }
         return api;
     }
 
-    private static VkApi CleanMyLikes(this VkApi api)
-    {
-        return api;
-    }
-
-    private static VkApi Login(string[] args)
+    private static VkApi LoadApi(string[] args)
     {
         var services = new ServiceCollection();
         services.AddAudioBypass();
@@ -48,7 +48,7 @@ internal static class Program
         WriteLine($"Login as vk.com/{api.Account.GetProfileInfo().ScreenName}");
         return api;
     }
-    
+
     private static ulong LoadAppId() =>
         Exists(AppIdPath) &&
         ReadAllLines(AppIdPath) is var lines &&
