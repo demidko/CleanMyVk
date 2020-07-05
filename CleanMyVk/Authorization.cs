@@ -12,7 +12,7 @@ using static VkNet.Enums.Filters.Settings;
 internal static class Authorization
 {
     /// In this file, the login data is cached line by line in the following order: appId, login, password
-    private const string CachePath = ".cache";
+    private const string CachePath = ".authorization";
 
     internal static VkApi Login(string[] args)
     {

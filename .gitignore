@@ -352,8 +352,9 @@ MigrationBackup/
 # Rider IDE file
 .idea
 
-# file contains app id
-.app
+# file contains authorization data
+.authorization
 
 # MacOS file
 .DS_Store
+
