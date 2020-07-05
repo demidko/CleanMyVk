@@ -10,8 +10,8 @@ internal static class Comments
 {
     internal static VkApi CleanComments(this VkApi api)
     {
-        var commentReader = new CommentsReader(api.NewsFeed);
-        for (var i = commentReader.NextItemOrNull(); i != null; i = commentReader.NextItemOrNull())
+        var postReader = new PostReader(api.NewsFeed);
+        for (var i = postReader.NextPostOrNull(); i != null; i = postReader.NextPostOrNull())
         {
             WriteLine(i.Type);
             ReadKey(true);
@@ -19,13 +19,13 @@ internal static class Comments
         return api;
     }
 
-    private class CommentsReader
+    private class PostReader
     {
         private string? _nextFrom;
         private readonly INewsFeedCategory _api;
         private IEnumerator<NewsItem> _enumerator;
 
-        public CommentsReader(INewsFeedCategory api)
+        public PostReader(INewsFeedCategory api)
         {
             _api = api;
             _enumerator = NextEnumerator();
@@ -38,7 +38,7 @@ internal static class Comments
             return answer.Items.GetEnumerator();
         }
 
-        internal NewsItem? NextItemOrNull()
+        internal NewsItem? NextPostOrNull()
         {
             if (_enumerator.MoveNext())
             {
