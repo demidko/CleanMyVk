@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using VkNet;
 using VkNet.Abstractions;
@@ -13,11 +14,38 @@ internal static class Comments
         var postReader = new PostReader(api.NewsFeed);
         for (var i = postReader.NextPostOrNull(); i != null; i = postReader.NextPostOrNull())
         {
-            WriteLine(i.Type);
+            var myComments = i.Comments.List.GrepComments(api.UserId.Value);
+            foreach (var myComment in myComments)
+            {
+                WriteLine(myComment.Text);
+            }
             ReadKey(true);
         }
         return api;
     }
+
+    private static IEnumerable<Comment> GrepComments(this ReadOnlyCollection<Comment> comments, long vkId) =>
+        comments.Where(x => x.OwnerId == vkId);
+
+    private class CommentsReader
+    {
+        private readonly PostReader _postReader;
+        private readonly VkApi _api;
+
+        public CommentsReader(VkApi api, PostReader postReader)
+        {
+            _api = api;
+            _postReader = postReader;
+        }
+
+
+        private IEnumerator<Comment> NextEnumerator()
+        {
+            
+        }
+        
+    }
+
 
     private class PostReader
     {

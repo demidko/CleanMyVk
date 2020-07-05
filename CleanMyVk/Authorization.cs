@@ -27,7 +27,7 @@ internal static class Authorization
             Password = password,
             Settings = All
         });
-        WriteLine($"Login as vk.com/{api.Account.GetProfileInfo().ScreenName}");
+        WriteLine($"Login as vk.com/{api.UserId}");
         return api;
     }
 
