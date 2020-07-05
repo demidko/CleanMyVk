@@ -14,7 +14,7 @@ internal static class Authorization
     /// In this file, the login data is cached line by line in the following order: appId, login, password
     private const string CachePath = ".cache";
 
-    public static VkApi Login(string[] args)
+    internal static VkApi Login(string[] args)
     {
         var services = new ServiceCollection();
         services.AddAudioBypass();
@@ -45,11 +45,14 @@ internal static class Authorization
     private static (ulong AppId, string Login, string Password) LoadAuthorizationDataFromInput(string[] input)
     {
         WriteAllLines(CachePath, input);
-        return (Parse(input[0]), input[1], input[2]);
+        return ExtractAuthorizationData(input);
     }
 
     private static (ulong AppId, string Login, string Password) LoadAuthorizationDataFromCache() =>
         Exists(CachePath) && ReadAllLines(CachePath) is var lines && lines.Length == 3
-            ? (lines[0], lines[1], lines[2])
+            ? ExtractAuthorizationData(lines)
             : throw new FileFormatException($"{CachePath} file broken or wasn't found");
+
+    private static (ulong AppId, string Login, string Password) ExtractAuthorizationData(string[] input) =>
+        (Parse(input[0]), input[1], input[2]);
 }
