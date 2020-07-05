@@ -3,11 +3,11 @@ using System.IO;
 using Microsoft.Extensions.DependencyInjection;
 using VkNet;
 using VkNet.AudioBypassService.Extensions;
-using VkNet.Enums.Filters;
 using VkNet.Model;
 using static System.IO.File;
 using static System.UInt64;
 using static System.Console;
+using static VkNet.Enums.Filters.Settings;
 
 internal static class Authorization
 {
@@ -25,7 +25,7 @@ internal static class Authorization
             ApplicationId = appId,
             Login = login,
             Password = password,
-            Settings = Settings.All
+            Settings = All
         });
         WriteLine($"Login as vk.com/{api.Account.GetProfileInfo().ScreenName}");
         return api;
