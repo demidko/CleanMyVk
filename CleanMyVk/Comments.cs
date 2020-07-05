@@ -1,10 +1,10 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using VkNet;
 using VkNet.Abstractions;
 using VkNet.Model;
 using VkNet.Model.RequestParams;
+using static System.Console;
 
 internal static class Comments
 {
@@ -13,8 +13,8 @@ internal static class Comments
         var commentReader = new CommentsReader(api.NewsFeed);
         for (var i = commentReader.NextItemOrNull(); i != null; i = commentReader.NextItemOrNull())
         {
-            Console.WriteLine(i.Text);
-            Console.ReadKey();
+            WriteLine(i.Type);
+            ReadKey(true);
         }
         return api;
     }
