@@ -7,13 +7,16 @@ using VkNet.Model;
 using VkNet.Model.Attachments;
 using VkNet.Model.RequestParams;
 using VkNet.Utils;
+using static System.Console;
+
+
 
 internal static class Likes
 {
     [Obsolete]
     internal static VkApi CleanLikes(this VkApi api)
     {
-        //testgit
+
         var getPhotos = api.Fave.GetPhotos();
         var getPosts = api.Fave.GetPosts();
         var getVideos = api.Fave.GetVideos();
@@ -23,37 +26,37 @@ internal static class Likes
         int countLikeVideos = Convert.ToInt32(getVideos.Count);
 
 
-        Console.WriteLine("Колличество \"поравившихся\" фото: " + countLikePhotos);
-        Console.WriteLine("Колличество \"поравившихся\" постов: " + countLikePosts);
-        Console.WriteLine("Колличество \"поравившихся\" видео: " + countLikeVideos);
+        WriteLine("Колличество \"поравившихся\" фото: " + countLikePhotos);
+        WriteLine("Колличество \"поравившихся\" постов: " + countLikePosts);
+        WriteLine("Колличество \"поравившихся\" видео: " + countLikeVideos);
 
-        Console.WriteLine("Удаляем лайки с фото через 1 секунду");
+        WriteLine("Удаляем лайки с фото через 1 секунду");
         Thread.Sleep(1000);
      
 
         for (int i = 0; i < countLikePhotos; i++)
         {
-            Console.WriteLine("Удалили лайк с " + RemoveLikePhotos(api, getPhotos, i));
+            WriteLine("Удалили лайк с " + RemoveLikePhotos(api, getPhotos, i));
         }
 
-        Console.WriteLine("Завершенно..");
+        WriteLine("Завершенно..");
 
-        Console.WriteLine("Удаляем лайки с постов через 1 секунду");
+        WriteLine("Удаляем лайки с постов через 1 секунду");
         Thread.Sleep(1000);
 
         for (int i = 0; i < countLikePosts; i++)
         {
-            Console.WriteLine("Удалили лайк с " + RemoveLikePost(api, getPosts, i));
+            WriteLine("Удалили лайк с " + RemoveLikePost(api, getPosts, i));
         }
 
-        Console.WriteLine("Завершенно..");
+        WriteLine("Завершенно..");
 
-        Console.WriteLine("Удаляем лайки с видео через 1 секунду");
+        WriteLine("Удаляем лайки с видео через 1 секунду");
         Thread.Sleep(1000);
 
         for (int i = 0; i < countLikeVideos; i++)
         {
-            Console.WriteLine("Удалили лайк с " + RemoveLikeVideo(api, getVideos, i));
+            WriteLine("Удалили лайк с " + RemoveLikeVideo(api, getVideos, i));
         }
 
         return api;
