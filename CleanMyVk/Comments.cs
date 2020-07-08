@@ -41,7 +41,8 @@ internal static class Comments
 
         private IEnumerator<Comment> NextEnumerator()
         {
-            
+            // TODO
+            return null;
         }
         
     }
