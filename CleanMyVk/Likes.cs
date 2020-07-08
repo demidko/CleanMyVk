@@ -13,7 +13,7 @@ internal static class Likes
     [Obsolete]
     internal static VkApi CleanLikes(this VkApi api)
     {
-
+        //testgit
         var getPhotos = api.Fave.GetPhotos();
         var getPosts = api.Fave.GetPosts();
         var getVideos = api.Fave.GetVideos();
