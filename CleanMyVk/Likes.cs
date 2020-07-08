@@ -80,10 +80,9 @@ internal static class Likes
     // Пример как избегать предупреждений
     static string RemoveLikePhotos(VkApi api, VkCollection<Photo> getPhotos, int number)
     {
-        if (getPhotos[number].Id is var photoId &&
-            photoId.HasValue &&
-            getPhotos[number].OwnerId is var ownerId &&
-            ownerId.HasValue)
+        var photoId = getPhotos[number].Id;
+        var ownerId = getPhotos[number].OwnerId;
+        if (photoId.HasValue && ownerId.HasValue)
         {
             var delete = api.Likes.Delete(LikeObjectType.Photo, photoId.Value, ownerId.Value);
             // TODO лучше возвращать ссылку а не id т к id пользователю ничего не говорит
