@@ -69,6 +69,9 @@ internal static class Likes
 
     static string RemoveLikePost(VkApi api, WallGetObject getPosts, int number)
     {
+        // TODO
+        // а вдруг api не найдет id? 
+        // надо делать как внизу в примере
         var delete = api.Likes.Delete(LikeObjectType.Post, (long) getPosts.WallPosts[number].Id,
             getPosts.WallPosts[number].OwnerId);
         return "Удалён лайк с id" + getPosts.WallPosts[number].Id;
