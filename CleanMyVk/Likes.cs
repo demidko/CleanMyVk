@@ -8,15 +8,13 @@ using VkNet.Model.Attachments;
 using VkNet.Model.RequestParams;
 using VkNet.Utils;
 using static System.Console;
-
-
+using static VkNet.Enums.SafetyEnums.LikeObjectType;
 
 internal static class Likes
 {
     [Obsolete]
     internal static VkApi CleanLikes(this VkApi api)
     {
-
         var getPhotos = api.Fave.GetPhotos();
         var getPosts = api.Fave.GetPosts();
         var getVideos = api.Fave.GetVideos();
@@ -32,7 +30,7 @@ internal static class Likes
 
         WriteLine("Удаляем лайки с фото через 1 секунду");
         Thread.Sleep(1000);
-     
+
 
         for (int i = 0; i < countLikePhotos; i++)
         {
@@ -64,20 +62,31 @@ internal static class Likes
 
     private static string RemoveLikeVideo(VkApi api, FaveVideoEx getVideos, int number)
     {
-        var delete = api.Likes.Delete(LikeObjectType.Video, (long)getVideos.Videos[number].Id, getVideos.Videos[number].OwnerId);
+        var delete = api.Likes.Delete(LikeObjectType.Video, (long) getVideos.Videos[number].Id,
+            getVideos.Videos[number].OwnerId);
         return "Удалён лайк с id" + getVideos.Videos[number].Id;
     }
 
     static string RemoveLikePost(VkApi api, WallGetObject getPosts, int number)
     {
-        var delete = api.Likes.Delete(LikeObjectType.Post, (long)getPosts.WallPosts[number].Id, getPosts.WallPosts[number].OwnerId);
+        var delete = api.Likes.Delete(LikeObjectType.Post, (long) getPosts.WallPosts[number].Id,
+            getPosts.WallPosts[number].OwnerId);
         return "Удалён лайк с id" + getPosts.WallPosts[number].Id;
     }
 
+    // Пример как избегать предупреждений
     static string RemoveLikePhotos(VkApi api, VkCollection<Photo> getPhotos, int number)
     {
-
-        var delete = api.Likes.Delete(LikeObjectType.Photo, (long)getPhotos[number].Id, getPhotos[number].OwnerId);
-        return "Удалён лайк с id" + getPhotos[number].Id;
+        if (getPhotos[number].Id is var photoId &&
+            photoId.HasValue &&
+            getPhotos[number].OwnerId is var ownerId &&
+            ownerId.HasValue)
+        {
+            var delete = api.Likes.Delete(LikeObjectType.Photo, photoId.Value, ownerId.Value);
+            // TODO лучше возвращать ссылку а не id т к id пользователю ничего не говорит
+            return $"Удалён лайк с {photoId}";
+        }
+        // TODO лучше все сообщения возвращать на английском
+        return "Ошибка удаления лайка";
     }
 }
