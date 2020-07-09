@@ -9,7 +9,7 @@ using VkNet.Model.RequestParams;
 using VkNet.Utils;
 using static System.Console;
 using static VkNet.Enums.SafetyEnums.LikeObjectType;
-
+//TODO Доделать вывод ссылок
 internal static class Likes
 {
     [Obsolete]
@@ -35,6 +35,7 @@ internal static class Likes
         for (int i = 0; i < countLikePhotos; i++)
         {
             WriteLine("Удалили лайк с " + RemoveLikePhotos(api, getPhotos, i));
+            Thread.Sleep(5000);//Попытка защиты от Капчи
         }
 
         WriteLine("Завершенно..");
@@ -45,6 +46,7 @@ internal static class Likes
         for (int i = 0; i < countLikePosts; i++)
         {
             WriteLine("Удалили лайк с " + RemoveLikePost(api, getPosts, i));
+            Thread.Sleep(5000);//Попытка защиты от Капчи
         }
 
         WriteLine("Завершенно..");
@@ -55,6 +57,7 @@ internal static class Likes
         for (int i = 0; i < countLikeVideos; i++)
         {
             WriteLine("Удалили лайк с " + RemoveLikeVideo(api, getVideos, i));
+            Thread.Sleep(5000);//Попытка защиты от Капчи
         }
 
         return api;
@@ -62,33 +65,40 @@ internal static class Likes
 
     private static string RemoveLikeVideo(VkApi api, FaveVideoEx getVideos, int number)
     {
-        var delete = api.Likes.Delete(LikeObjectType.Video, (long) getVideos.Videos[number].Id,
-            getVideos.Videos[number].OwnerId);
+        var urlVideos = getVideos.Videos[number].UploadUrl;
+        var videosId = getVideos.Videos[number].Id;
+        var ownerId = getVideos.Videos[number].OwnerId;
+        if (videosId.HasValue && ownerId.HasValue)
+        {
+            api.Likes.Delete(LikeObjectType.Video, videosId.Value, ownerId.Value);
+            return $"Удалён лайк с {urlVideos}";
+        }
         return "Удалён лайк с id" + getVideos.Videos[number].Id;
     }
 
     static string RemoveLikePost(VkApi api, WallGetObject getPosts, int number)
     {
-        // TODO
-        // а вдруг api не найдет id? 
-        // надо делать как внизу в примере
-        var delete = api.Likes.Delete(LikeObjectType.Post, (long) getPosts.WallPosts[number].Id,
-            getPosts.WallPosts[number].OwnerId);
-        return "Удалён лайк с id" + getPosts.WallPosts[number].Id;
+        var urlPosts = getPosts.WallPosts[number].Text;
+        var postsId = getPosts.WallPosts[number].Id;
+        var ownerId = getPosts.WallPosts[number].OwnerId;
+        if (postsId.HasValue && ownerId.HasValue)
+        {
+            api.Likes.Delete(LikeObjectType.Post, postsId.Value, ownerId.Value);
+            return $"Удалён лайк с {urlPosts}";
+        }
+        return "Ошибка удаления лайка";
     }
 
-    // Пример как избегать предупреждений
     static string RemoveLikePhotos(VkApi api, VkCollection<Photo> getPhotos, int number)
     {
+        var urlPhoto = getPhotos[number].Url;
         var photoId = getPhotos[number].Id;
         var ownerId = getPhotos[number].OwnerId;
         if (photoId.HasValue && ownerId.HasValue)
         {
-            var delete = api.Likes.Delete(LikeObjectType.Photo, photoId.Value, ownerId.Value);
-            // TODO лучше возвращать ссылку а не id т к id пользователю ничего не говорит
-            return $"Удалён лайк с {photoId}";
+            api.Likes.Delete(LikeObjectType.Photo, photoId.Value, ownerId.Value);
+            return $"Удалён лайк с {urlPhoto}";
         }
-        // TODO лучше все сообщения возвращать на английском
         return "Ошибка удаления лайка";
     }
 }
