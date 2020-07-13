@@ -1,6 +1,8 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Runtime.InteropServices.ComTypes;
 using VkNet;
 using VkNet.Abstractions;
 using VkNet.Model;
@@ -9,72 +11,66 @@ using static System.Console;
 
 internal static class Comments
 {
-    internal static VkApi CleanComments(this VkApi api)
+    internal static VkApi CleanMyComments(this VkApi api)
     {
-        var postReader = new PostReader(api.NewsFeed);
-        for (var i = postReader.NextPostOrNull(); i != null; i = postReader.NextPostOrNull())
+        foreach (var comment in api.ReadAllMyComments())
         {
-            var myComments = i.Comments.List.GrepComments(api.UserId.Value);
-            foreach (var myComment in myComments)
-            {
-                WriteLine(myComment.Text);
-            }
+            WriteLine(comment);
             ReadKey(true);
         }
         return api;
     }
 
-    private static IEnumerable<Comment> GrepComments(this ReadOnlyCollection<Comment> comments, long vkId) =>
-        comments.Where(x => x.OwnerId == vkId);
+    private static IEnumerable<Comment> ReadAllMyComments(this VkApi api)
+    {
+        var commentsReader = new CommentsReader(api);
+        for (var commentsPack = commentsReader.NextCommentsPackOrNull();
+            commentsPack != null;
+            commentsPack = commentsReader.NextCommentsPackOrNull())
+        {
+            foreach (var comment in commentsPack)
+            {
+                if (comment.OwnerId == api.UserId)
+                {
+                    yield return comment;
+                }
+            }
+        }
+    }
 
     private class CommentsReader
     {
-        private readonly PostReader _postReader;
-        private readonly VkApi _api;
-
-        public CommentsReader(VkApi api, PostReader postReader)
-        {
-            _api = api;
-            _postReader = postReader;
-        }
-
-
-        private IEnumerator<Comment> NextEnumerator()
-        {
-            // TODO
-            return null;
-        }
-        
-    }
-
-
-    private class PostReader
-    {
         private string? _nextFrom;
-        private readonly INewsFeedCategory _api;
-        private IEnumerator<NewsItem> _enumerator;
+        private readonly VkApi _api;
+        private IEnumerator<NewsItem> _postEnumerator;
 
-        public PostReader(INewsFeedCategory api)
+        public CommentsReader(VkApi api)
         {
             _api = api;
-            _enumerator = NextEnumerator();
+            _postEnumerator = NextPostEnumerator();
         }
 
-        private IEnumerator<NewsItem> NextEnumerator()
+        private IEnumerator<NewsItem> NextPostEnumerator()
         {
-            var answer = _api.Get(new NewsFeedGetParams {Count = 100, StartFrom = _nextFrom});
+            var answer = _api.NewsFeed.Get(new NewsFeedGetParams
+            {
+                Count = 100,
+                StartFrom = _nextFrom
+            });
             _nextFrom = answer.NextFrom;
             return answer.Items.GetEnumerator();
         }
 
-        internal NewsItem? NextPostOrNull()
+        private NewsItem? NextPost()
         {
-            if (_enumerator.MoveNext())
+            if (_postEnumerator.MoveNext())
             {
-                return _enumerator.Current;
+                return _postEnumerator.Current;
             }
-            _enumerator = NextEnumerator();
-            return _enumerator.MoveNext() ? _enumerator.Current : null;
+            _postEnumerator = NextPostEnumerator();
+            return _postEnumerator.MoveNext() ? _postEnumerator.Current : null;
         }
+
+        internal ReadOnlyCollection<Comment>? NextCommentsPackOrNull() => NextPost()?.Comments.List;
     }
 }
