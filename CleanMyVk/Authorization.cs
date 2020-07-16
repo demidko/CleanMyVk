@@ -11,9 +11,10 @@ using static VkNet.Enums.Filters.Settings;
 
 internal static class Authorization
 {
-    /// In this file, the login data is cached line by line in the following order: appId, login, password
+    /// In this file, the login data is cached line by line in the following order:
+    /// appId, login, password
     private const string CachePath = ".authorization";
-
+    
     internal static VkApi Login(string[] args)
     {
         var services = new ServiceCollection();
@@ -42,17 +43,20 @@ internal static class Authorization
                 "  With cache: dotnet CleanMyVk")
         };
 
-    private static (ulong AppId, string Login, string Password) LoadAuthorizationDataFromInput(string[] input)
+    private static 
+        (ulong AppId, string Login, string Password) LoadAuthorizationDataFromInput(string[] input)
     {
         WriteAllLines(CachePath, input);
         return ExtractAuthorizationData(input);
     }
 
-    private static (ulong AppId, string Login, string Password) LoadAuthorizationDataFromCache() =>
+    private static 
+        (ulong AppId, string Login, string Password) LoadAuthorizationDataFromCache() =>
         Exists(CachePath) && ReadAllLines(CachePath) is var lines && lines.Length == 3
             ? ExtractAuthorizationData(lines)
             : throw new FileFormatException($"{CachePath} file broken or wasn't found");
 
-    private static (ulong AppId, string Login, string Password) ExtractAuthorizationData(string[] input) =>
+    private static 
+        (ulong AppId, string Login, string Password) ExtractAuthorizationData(string[] input) =>
         (Parse(input[0]), input[1], input[2]);
 }

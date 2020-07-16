@@ -1,76 +1,64 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Collections.ObjectModel;
-using System.Linq;
 using System.Runtime.InteropServices.ComTypes;
 using VkNet;
 using VkNet.Abstractions;
 using VkNet.Model;
 using VkNet.Model.RequestParams;
 using static System.Console;
+using static System.Linq.Enumerable;
 
 internal static class Comments
 {
-    internal static VkApi CleanMyComments(this VkApi api)
+    internal static void CleanMyComments(this VkApi api)
     {
-        foreach (var comment in api.ReadAllMyComments())
+        for (var it = api.NewsIterator(); it != null; it = it.Next())
         {
-            WriteLine(comment);
-            ReadKey(true);
-        }
-        return api;
-    }
-
-    private static IEnumerable<Comment> ReadAllMyComments(this VkApi api)
-    {
-        var commentsReader = new CommentsReader(api);
-        for (var commentsPack = commentsReader.NextCommentsPackOrNull();
-            commentsPack != null;
-            commentsPack = commentsReader.NextCommentsPackOrNull())
-        {
-            foreach (var comment in commentsPack)
+            foreach (var post in it?.News)
             {
-                if (comment.OwnerId == api.UserId)
+                WriteLine($"post vk.com/wall{post.SourceId}_{post.PostId}");
+                WriteLine(post.Comments.List == null);
+                api.Wall.GetComments(new WallGetCommentsParams()
                 {
-                    yield return comment;
+                    
+                })
+                foreach (var comment in post.Comments?.List ?? Empty<Comment>())
+                {
+                    WriteLine($"  vk.com/{comment.OwnerId}: {comment.Text ?? ""}");
                 }
             }
         }
     }
 
-    private class CommentsReader
+    /// <summary>
+    /// Метод инкрементирует итератор новостей
+    /// </summary>
+    /// <param name="self">итератор</param>
+    /// <returns>следующий итератор или null</returns>
+    private static (long? NextFrom, IEnumerable<NewsItem> News, VkApi Api)?
+        Next(this (long? NextFrom, IEnumerable<NewsItem> News, VkApi Api)? self) => self?.NextFrom switch
     {
-        private string? _nextFrom;
-        private readonly VkApi _api;
-        private IEnumerator<NewsItem> _postEnumerator;
+        null => null,
+        _ => self?.Api.NewsIterator(self?.NextFrom)
+    };
 
-        public CommentsReader(VkApi api)
+    /// <summary>
+    /// Метод отдает итератор новостей которые пользователь прокомментировал
+    /// </summary>
+    /// <param name="api">VK api</param>
+    /// <param name="startFrom">смещение</param>
+    /// <returns>итератор</returns>
+    private static (long? NextFrom, IEnumerable<NewsItem> News, VkApi Api)? NewsIterator(
+        this VkApi api, long? startFrom = null)
+    {
+        var answer = api.NewsFeed.GetComments(new NewsFeedGetCommentsParams
         {
-            _api = api;
-            _postEnumerator = NextPostEnumerator();
-        }
-
-        private IEnumerator<NewsItem> NextPostEnumerator()
-        {
-            var answer = _api.NewsFeed.Get(new NewsFeedGetParams
-            {
-                Count = 100,
-                StartFrom = _nextFrom
-            });
-            _nextFrom = answer.NextFrom;
-            return answer.Items.GetEnumerator();
-        }
-
-        private NewsItem? NextPost()
-        {
-            if (_postEnumerator.MoveNext())
-            {
-                return _postEnumerator.Current;
-            }
-            _postEnumerator = NextPostEnumerator();
-            return _postEnumerator.MoveNext() ? _postEnumerator.Current : null;
-        }
-
-        internal ReadOnlyCollection<Comment>? NextCommentsPackOrNull() => NextPost()?.Comments.List;
+            Count = 100,
+            StartFrom = startFrom
+        });
+        var nextFrom = answer.NextFrom == null ? (long?) null : long.Parse(answer.NextFrom);
+        return (nextFrom, answer.Items, api);
     }
 }
