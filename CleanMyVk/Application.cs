@@ -5,5 +5,5 @@
 /// </summary>
 internal static class Application
 {
-    private static void Main(string[] user) => Login(user).CleanMyComments();
+    private static void Main(string[] me) => Login(me).CleanMyComments();
 }
