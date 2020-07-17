@@ -113,6 +113,7 @@ internal static class CommentCleaner
         {
             foreach (var post in i.News)
             {
+                WriteLine($"You have commented on the vk.com/wall{post.SourceId}_{post.PostId} post");
                 yield return post;
             }
             if (i.IsLast())
