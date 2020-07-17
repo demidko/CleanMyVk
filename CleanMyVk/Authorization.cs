@@ -41,7 +41,7 @@ internal static class Authorization
             Password = password,
             Settings = All
         });
-        WriteLine($"Login as vk.com/id{api.UserId}");
+        $"Login as vk.com/id{api.UserId}".PrintlnWithAttention();
         return api;
     }
 

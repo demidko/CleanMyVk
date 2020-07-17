@@ -4,10 +4,13 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using VkNet;
+using VkNet.Exception;
 using VkNet.Model;
 using VkNet.Model.RequestParams;
 using static System.Console;
+using static System.ConsoleColor;
 using static System.Linq.Enumerable;
+using static System.String;
 using static Terminal;
 
 /// <summary>
@@ -21,18 +24,32 @@ internal static class Comments
     /// </summary>
     public static void CleanComments(this VkApi api)
     {
-        "CleanMyComments".Attention();
+        "Delete all comments".PrintlnWithAttention();
         foreach (var post in api.CommentedPosts())
         {
             foreach (var comment in api.CommentsOf(post).Where(x => x.FromId == api.UserId))
             {
-                if (api.Wall.DeleteComment(comment.OwnerId, comment.Id))
-                {
-                    comment.Print();
-                    continue;
-                }
-                throw new InvalidOperationException($"Can't delete comment {comment.ToTextBlock()}");
+                api.Delete(comment);
             }
+        }
+    }
+
+    private static void Delete(this VkApi api, Comment comment)
+    {
+        try
+        {
+            if (api.Wall.DeleteComment(comment.OwnerId, comment.Id))
+            {
+                "Deleted comment".PrintlnWith(comment);
+            }
+            else
+            {
+                throw new InvalidOperationException();
+            }
+        }
+        catch (Exception e)
+        {
+            "Can't delete comment".PrintlnWith(comment, Red);
         }
     }
 
@@ -143,9 +160,22 @@ internal static class Comments
     private static (bool IsLast, WallGetCommentsParams Params, IEnumerable<Comment> Comments, VkApi Api)
         CommentsEnumerator(this VkApi api, WallGetCommentsParams @params)
     {
-        var answer = api.Wall.GetComments(@params);
-        @params.Offset += answer.Items.Count;
-        return (@params.Offset >= answer.CurrentLevelCount, @params, answer.Items, api);
+        try
+        {
+            var answer = api.Wall.GetComments(@params);
+            @params.Offset += answer.Items.Count;
+            return (@params.Offset >= answer.CurrentLevelCount, @params, answer.Items, api);
+        }
+        catch (Exception e)
+        {
+            e.Message.PrintlnWithAttention();
+            Join(e.StackTrace, "\n").PrintlnWithAttention();
+            (
+                $"offset={@params.Offset}\n" +
+                $"commentId={@params.CommentId}\n" +
+                $"vk.com/wall{@params.OwnerId}_{@params.PostId}").PrintlnWithAttention();
+            return (true, @params, Empty<Comment>(), api);
+        }
     }
 
     /// <summary>

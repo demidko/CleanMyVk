@@ -10,28 +10,28 @@ using static System.String;
 /// </summary>
 internal static class Terminal
 {
-    internal static void Attention(this string text) => text.Print(Red);
+    internal static void PrintlnWithAttention(this string text) => text.PrintlnWith(Red);
 
-    internal static void Print(this Comment comment)
+    internal static void PrintlnWith(this string beforeLink, Comment comment, ConsoleColor linkColor = Gray)
     {
-        $"vk.com/wall{comment.OwnerId}_{comment.PostId}?reply={comment.Id}".Print(DarkGray);
+        $"{beforeLink} vk.com/wall{comment.OwnerId}_{comment.PostId}?reply={comment.Id} ".PrintWith(linkColor);
         if (comment.Text != null)
         {
-            WriteLine($"  {comment.Text}");
+            WriteLine($"{comment.Text}");
         }
     }
 
-    internal static string ToTextBlock(this Comment comment) =>
-        $"vk.com/wall{comment.OwnerId}_{comment.PostId}?reply={comment.Id}\n" +
-        comment.Text == null
-            ? $"  {comment.Text}"
-            : Empty;
-
-    internal static void Print(this string text, ConsoleColor color)
+    private static void PrintWith(this string text, ConsoleColor color)
     {
         var previousColor = ForegroundColor;
         ForegroundColor = color;
-        WriteLine(text);
+        Write(text);
         ForegroundColor = previousColor;
+    }
+
+    private static void PrintlnWith(this string text, ConsoleColor color)
+    {
+        text.PrintWith(color);
+        WriteLine();
     }
 }
