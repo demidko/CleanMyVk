@@ -19,6 +19,7 @@ internal static class CommentCleaner
     {
         foreach (var comment in api.GetMyComments())
         {
+            WriteLine($"delete your comment vk.com/wall{comment.OwnerId}_{comment.PostId}?reply={comment.Id}");
             api.Wall.DeleteComment(comment.OwnerId, comment.Id);
         }
     }
@@ -34,7 +35,6 @@ internal static class CommentCleaner
             {
                 if (comment.FromId == api.UserId)
                 {
-                    //WriteLine($"found your comment vk.com/wall{post.SourceId}_{post.PostId}?reply={comment.Id}");
                     yield return comment;
                 }
             }
@@ -85,11 +85,10 @@ internal static class CommentCleaner
         this VkApi api, WallGetCommentsParams @params)
     {
         var answer = api.Wall.GetComments(@params);
-        @params.Offset += answer.Count;
-
         WriteLine(
-            $"post vk.com/wall{@params.OwnerId}_{@params.PostId} -> (count: {answer.Count}, offset: {@params.Offset})");
-
+            $"post vk.com/wall{@params.OwnerId}_{@params.PostId}\n" +
+            $"  with offset {@params.Offset} found {answer.Items.Count} comments (total {answer.Count})");
+        @params.Offset++;
         return (@params, answer.Items, api);
     }
 
