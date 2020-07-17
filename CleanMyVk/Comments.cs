@@ -8,6 +8,7 @@ using VkNet.Model;
 using VkNet.Model.RequestParams;
 using static System.Console;
 using static System.Linq.Enumerable;
+using static Terminal;
 
 /// <summary>
 /// Класс отвечает за удаление комментариев.
@@ -20,14 +21,18 @@ internal static class Comments
     /// </summary>
     public static void CleanComments(this VkApi api)
     {
+        "CleanMyComments".Attention();
         foreach (var post in api.CommentedPosts())
         {
-            WriteLine($"vk.com/wall{post.SourceId}_{post.PostId} --> {api.CommentsOf(post).Count()}");
-            /*foreach (var i in api.CommentsOf(post).Where(x => x.FromId == api.UserId))
+            foreach (var comment in api.CommentsOf(post).Where(x => x.FromId == api.UserId))
             {
-                api.Wall.Delete(i.OwnerId, i.Id);
-                Write($"delete vk.com/wall{post.SourceId}_{post.PostId}?reply={i.Id}");
-            }*/
+                if (api.Wall.DeleteComment(comment.OwnerId, comment.Id))
+                {
+                    comment.Print();
+                    continue;
+                }
+                throw new InvalidOperationException($"Can't delete comment {comment.ToTextBlock()}");
+            }
         }
     }
 
@@ -44,7 +49,7 @@ internal static class Comments
             }
             if (i.IsLast())
             {
-                break;
+                yield break;
             }
         }
     }
@@ -99,7 +104,7 @@ internal static class Comments
             }
             if (threadBatch.IsLast)
             {
-                break;
+                yield break;
             }
         }
     }
