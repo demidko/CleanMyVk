@@ -1,16 +1,14 @@
 using System;
-using System.Linq;
 using System.Threading;
 using VkNet;
 using VkNet.Enums.SafetyEnums;
 using VkNet.Model;
 using VkNet.Model.Attachments;
-using VkNet.Model.RequestParams;
 using VkNet.Utils;
 using static System.Console;
-using static VkNet.Enums.SafetyEnums.LikeObjectType;
+
 //TODO Доделать вывод ссылок
-internal static class Likes
+internal static class LikesCleaner
 {
     [Obsolete]
     internal static VkApi CleanLikes(this VkApi api)
