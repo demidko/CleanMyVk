@@ -8,7 +8,7 @@ using VkNet.Utils;
 using static System.Console;
 
 //TODO Доделать вывод ссылок
-internal static class LikesCleaner
+internal static class Likes
 {
     [Obsolete]
     internal static VkApi CleanLikes(this VkApi api)
