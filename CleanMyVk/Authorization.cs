@@ -12,18 +12,25 @@ using static VkNet.Enums.Filters.Settings;
 internal static class Authorization
 {
     /// In this file, the login data is cached line by line in the following order:
-    /// appId, login, password
-    private const string CachePath = ".authorization";
-    
+    /// login, password
+    private const string UserFile = ".authorization";
+
+    private const ulong ApplicationId = 2274003;
+
+    /// <summary>
+    /// Метод входит под именем и паролем пользователя
+    /// </summary>
+    /// <param name="args">логин, пароль</param>
+    /// <returns>VK Api</returns>
     internal static VkApi Login(string[] args)
     {
         var services = new ServiceCollection();
         services.AddAudioBypass();
         var api = new VkApi(services);
-        var (appId, login, password) = LoadAuthorizationData(args);
+        var (login, password) = LoadAuthorizationData(args);
         api.Authorize(new ApiAuthParams
         {
-            ApplicationId = appId,
+            ApplicationId = ApplicationId,
             Login = login,
             Password = password,
             Settings = All
@@ -32,31 +39,27 @@ internal static class Authorization
         return api;
     }
 
-    private static (ulong AppId, string Login, string Password) LoadAuthorizationData(string[] args) =>
+    private static ( string Login, string Password) LoadAuthorizationData(string[] args) =>
         args.Length switch
         {
             0 => LoadAuthorizationDataFromCache(),
-            3 => LoadAuthorizationDataFromInput(args),
+            2 => LoadAuthorizationDataFromInput(args),
             _ => throw new ArgumentException(
                 "Usage:\n" +
-                "  With authorization data: dotnet CleanMyVk [appId] [login] [password]\n" +
+                "  With authorization data: dotnet CleanMyVk [login] [password]\n" +
                 "  With cache: dotnet CleanMyVk")
         };
 
-    private static 
-        (ulong AppId, string Login, string Password) LoadAuthorizationDataFromInput(string[] input)
+    private static (string Login, string Password) LoadAuthorizationDataFromInput(string[] input)
     {
-        WriteAllLines(CachePath, input);
-        return ExtractAuthorizationData(input);
+        WriteAllLines(UserFile, input);
+        return ExtractUser(input);
     }
 
-    private static 
-        (ulong AppId, string Login, string Password) LoadAuthorizationDataFromCache() =>
-        Exists(CachePath) && ReadAllLines(CachePath) is var lines && lines.Length == 3
-            ? ExtractAuthorizationData(lines)
-            : throw new FileFormatException($"{CachePath} file broken or wasn't found");
+    private static (string Login, string Password) LoadAuthorizationDataFromCache() =>
+        Exists(UserFile) && ReadAllLines(UserFile) is var lines && lines.Length == 2
+            ? ExtractUser(lines)
+            : throw new FileFormatException($"{UserFile} file broken or wasn't found");
 
-    private static 
-        (ulong AppId, string Login, string Password) ExtractAuthorizationData(string[] input) =>
-        (Parse(input[0]), input[1], input[2]);
+    private static (string Login, string Password) ExtractUser(string[] input) => (input[0], input[1]);
 }
