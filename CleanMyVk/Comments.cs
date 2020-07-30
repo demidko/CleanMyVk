@@ -24,9 +24,10 @@ internal static class Comments
     /// </summary>
     public static void CleanComments(this VkApi api)
     {
-        "Delete all comments".PrintlnWithAttention();
+        "Delete all comments".PrintlnAsAttention();
         foreach (var post in api.CommentedPosts())
         {
+            post.Println();
             foreach (var comment in api.CommentsOf(post).Where(x => x.FromId == api.UserId))
             {
                 api.Delete(comment);
@@ -134,10 +135,14 @@ internal static class Comments
         yield return comment;
         if (comment.Thread.Count > 10)
         {
+            post.Println();
+            "nested comments of required ".PrintlnWith(comment, Red);
+            
             foreach (var nested in api.CommentsOf(post, comment.Id))
             {
                 yield return nested;
             }
+            
             yield break;
         }
         foreach (var nested in comment.Thread.Items)
@@ -168,12 +173,7 @@ internal static class Comments
         }
         catch (Exception e)
         {
-            e.Message.PrintlnWithAttention();
-            Join(e.StackTrace, "\n").PrintlnWithAttention();
-            (
-                $"offset={@params.Offset}\n" +
-                $"commentId={@params.CommentId}\n" +
-                $"vk.com/wall{@params.OwnerId}_{@params.PostId}").PrintlnWithAttention();
+            e.Message.PrintlnAsAttention();
             return (true, @params, Empty<Comment>(), api);
         }
     }

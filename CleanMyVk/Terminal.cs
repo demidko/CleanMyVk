@@ -10,7 +10,10 @@ using static System.String;
 /// </summary>
 internal static class Terminal
 {
-    internal static void PrintlnWithAttention(this string text) => text.PrintlnWith(Red);
+    internal static void PrintlnAsAttention(this string text) => text.PrintlnWith(Red);
+
+    internal static void Println(this NewsItem post) =>
+        $"vk.com/wall{post.SourceId}_{post.PostId}".PrintlnWith(Blue);
 
     internal static void PrintlnWith(this string beforeLink, Comment comment, ConsoleColor linkColor = Gray)
     {
@@ -20,6 +23,8 @@ internal static class Terminal
             WriteLine($"{comment.Text}");
         }
     }
+
+    internal static void Println(this string s) => WriteLine(s);
 
     private static void PrintWith(this string text, ConsoleColor color)
     {
