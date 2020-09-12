@@ -48,7 +48,7 @@ internal static class Comments
                 throw new InvalidOperationException();
             }
         }
-        catch (Exception e)
+        catch (Exception)
         {
             "Can't delete comment".PrintlnWith(comment, Red);
         }
