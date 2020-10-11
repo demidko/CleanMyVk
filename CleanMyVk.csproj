@@ -5,15 +5,13 @@
         <Nullable>enable</Nullable>
         <LangVersion>9</LangVersion>
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-        <RootNamespace/>
+        <RootNamespace />
     </PropertyGroup>
     <ItemGroup>
         <!--VK API без необходимости вручную получать токен-->
-        <PackageReference Include="VkNet" Version="1.56.0"/>
+        <PackageReference Include="Selenium.Firefox.WebDriver" Version="0.27.0" />
+        <PackageReference Include="VkNet" Version="1.56.0" />
         <!--Дает доступ к сообщениям и комментариям-->
-        <PackageReference Include="VkNet.AudioBypassService" Version="1.7.0"/>
-    </ItemGroup>
-    <ItemGroup>
-        <Compile Remove="src\Comments.cs"/>
+        <PackageReference Include="VkNet.AudioBypassService" Version="1.7.0" />
     </ItemGroup>
 </Project>

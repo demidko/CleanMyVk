@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Linq;
 using Microsoft.VisualBasic;
 using static System.ConsoleColor;
@@ -12,10 +13,6 @@ internal static class Application
 {
     private static void Main(string[] args)
     {
-        var api = Login(args);
-        foreach (var m in new CommentCollector(api).ListMentions())
-        {
-            m.Text.Println();
-        }
+        
     }
 }
