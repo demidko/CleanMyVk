@@ -1,5 +1,7 @@
+using System.Collections.Generic;
 using VkNet;
 using VkNet.Model;
+using VkNet.Model.RequestParams;
 using VkNet.Utils;
 
 internal class CommentCollector
@@ -11,8 +13,11 @@ internal class CommentCollector
         _api = api;
     }
 
-    public VkCollection<Mention> ListMentions()
+    public IEnumerable<NewsItem> ListMentions()
     {
-        return _api.NewsFeed.GetMentions();
+        return _api.NewsFeed.GetComments(new NewsFeedGetCommentsParams
+        {
+            Count = 100,
+        }).Items;
     }
 }

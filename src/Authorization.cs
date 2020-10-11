@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using Microsoft.Extensions.DependencyInjection;
 using VkNet;
+using VkNet.AudioBypassService.Extensions;
 using VkNet.Model;
 using static System.IO.File;
 using static System.Console;
@@ -26,7 +27,10 @@ internal static class Authorization
     /// <returns>VK Api</returns>
     internal static VkApi Login(IReadOnlyList<string> args)
     {
-        var api = new VkApi();
+        var services = new ServiceCollection();
+        // Включаем доступ к своим сообщениям и комментариям
+        services.AddAudioBypass();
+        var api = new VkApi(services);
         var (login, password) = LoadAuthorizationData(args);
         api.Authorize(new ApiAuthParams
         {
@@ -43,7 +47,7 @@ internal static class Authorization
     /// <summary>
     /// Метод загружает пару (логин, пароль) с помощью аргументов
     /// </summary>
-    private static ( string Login, string Password) LoadAuthorizationData(IReadOnlyList<string> args) =>
+    private static (string Login, string Password) LoadAuthorizationData(IReadOnlyList<string> args) =>
         args.Count switch
         {
             0 => LoadAuthorizationDataFromCache(),
