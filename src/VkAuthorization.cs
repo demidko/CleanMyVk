@@ -11,9 +11,9 @@ using static System.ConsoleColor;
 using static VkNet.Enums.Filters.Settings;
 
 /// <summary>
-/// Модуль отвечает за авторизацию пользователя
+/// Модуль отвечает за авторизацию пользователя в ВК
 /// </summary>
-internal static class Authorization
+internal static class VkAuthorization
 {
     /// <summary>
     /// Кеш содержит две строки (1 логин, 2 пароль)
@@ -25,7 +25,7 @@ internal static class Authorization
     /// </summary>
     /// <param name="args">номер (или email), пароль</param>
     /// <returns>VK Api</returns>
-    internal static VkApi Login(IReadOnlyList<string> args)
+    internal static VkApi LoginForVkApi(IReadOnlyList<string> args)
     {
         var services = new ServiceCollection();
         // Включаем доступ к своим сообщениям и комментариям
