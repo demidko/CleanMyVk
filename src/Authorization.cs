@@ -28,11 +28,9 @@ internal static class Authorization
     {
         var api = new VkApi();
         var (login, password) = LoadAuthorizationData(args);
-        login.Println();
-        password.Println();
         api.Authorize(new ApiAuthParams
         {
-            // Используем app id который откопали где-то в интернете
+            // Используем идентификатор который откопали где-то в интернете
             ApplicationId = 1980660,
             Login = login,
             Password = password,
@@ -63,19 +61,22 @@ internal static class Authorization
     private static (string Login, string Password) LoadAuthorizationDataFromInput(IReadOnlyList<string> args)
     {
         WriteAllLines(UserFile, args);
-        return ExtractUser(args);
+        return (args[0], args[1]);
     }
 
     /// <summary>
     /// Метод извлекает пару (логин, пароль) из кеша
     /// </summary>
-    private static (string Login, string Password) LoadAuthorizationDataFromCache() =>
-        Exists(UserFile) && ReadAllLines(UserFile) is var lines && lines.Length == 2
-            ? ExtractUser(lines)
-            : throw new Exception($"{UserFile} file broken or wasn't found");
-
-    /// <summary>
-    /// Метод извлекает из массива пару (логин, пароль)
-    /// </summary>
-    private static (string Login, string Password) ExtractUser(IReadOnlyList<string> input) => (input[0], input[1]);
+    private static (string Login, string Password) LoadAuthorizationDataFromCache()
+    {
+        "Reading login and password from cache...".Println(DarkBlue);
+        if (!Exists(UserFile))
+        {
+            throw new FileNotFoundException($"Cache wasn't found");
+        }
+        var lines = ReadAllLines(UserFile);
+        return lines.Length == 2
+            ? (lines[0], lines[1])
+            : throw new IOException($"Invalid cache. Please restart application with login and password");
+    }
 }
