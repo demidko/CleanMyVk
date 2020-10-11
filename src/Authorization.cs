@@ -16,9 +16,9 @@ using static VkNet.Enums.Filters.Settings;
 internal static class Authorization
 {
     /// <summary>
-    /// Файл содержит две строки (1 логин, 2 пароль)
+    /// Кеш содержит две строки (1 логин, 2 пароль)
     /// </summary>
-    private const string UserFile = ".authorization";
+    private const string CachePath = ".authorization";
 
     /// <summary>
     /// Метод входит под именем и паролем пользователя
@@ -64,7 +64,7 @@ internal static class Authorization
     /// </summary>
     private static (string Login, string Password) LoadAuthorizationDataFromInput(IReadOnlyList<string> args)
     {
-        WriteAllLines(UserFile, args);
+        WriteAllLines(CachePath, args);
         return (args[0], args[1]);
     }
 
@@ -74,13 +74,17 @@ internal static class Authorization
     private static (string Login, string Password) LoadAuthorizationDataFromCache()
     {
         "Reading login and password from cache...".Println(DarkBlue);
-        if (!Exists(UserFile))
+        if (!Exists(CachePath))
         {
-            throw new FileNotFoundException($"Cache wasn't found");
+            throw new FileNotFoundException(
+                $"Authorization cache wasn't found. Please restart application with login and password"
+            );
         }
-        var lines = ReadAllLines(UserFile);
+        var lines = ReadAllLines(CachePath);
         return lines.Length == 2
             ? (lines[0], lines[1])
-            : throw new IOException($"Invalid cache. Please restart application with login and password");
+            : throw new IOException(
+                $"Invalid authorization cache. Please restart application with login and password"
+            );
     }
 }
