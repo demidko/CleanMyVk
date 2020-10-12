@@ -2,9 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using OpenQA.Selenium;
 using VkNet;
 using VkNet.AudioBypassService.Extensions;
 using VkNet.Model;
+using VkNet.Utils.AntiCaptcha;
 using static System.IO.File;
 using static System.Console;
 using static System.ConsoleColor;
@@ -23,13 +26,15 @@ internal static class VkAuthorization
     /// <summary>
     /// Метод входит под именем и паролем пользователя
     /// </summary>
+    /// <param name="driver">Selenium web driver</param>
     /// <param name="args">номер (или email), пароль</param>
     /// <returns>VK Api</returns>
-    internal static VkApi LoginForVkApi(IReadOnlyList<string> args)
+    internal static VkApi LoginForVkApi(this IWebDriver driver, IReadOnlyList<string> args)
     {
         var services = new ServiceCollection();
         // Включаем доступ к своим сообщениям и комментариям
         services.AddAudioBypass();
+        services.TryAddSingleton<ICaptchaSolver>(new VkCaptchaSolver(driver));
         var api = new VkApi(services);
         var (login, password) = LoadAuthorizationData(args);
         api.Authorize(new ApiAuthParams
